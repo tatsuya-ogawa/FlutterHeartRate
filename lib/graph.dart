@@ -1,7 +1,8 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/animation.dart';
-import 'bloc.dart';
 
+import 'bloc.dart';
 class GraphPainter extends CustomPainter {
   HeartRateBloc bloc;
   final int currentTimestamp;
@@ -9,7 +10,7 @@ class GraphPainter extends CustomPainter {
   GraphPainter(this.bloc,this.currentTimestamp);
 
   static const TimeSpan = 15000;
-  static const MaxHue = -0.04;
+  static const MaxHue = -0.03;
   static const MinHue = -0.08;
   @override
   void paint(Canvas canvas, Size size) {
@@ -22,7 +23,7 @@ class GraphPainter extends CustomPainter {
     final list = bloc.dataList;
     var path = Path();
     double lastHeartRate = null;
-    for (var i = 1; i < list.length; i++) {
+    for (var i = 2; i < list.length; i++) {
       final startTimeOffset =
           (list[i - 1].timestamp - currentTimestamp + TimeSpan) / TimeSpan;
       final endTimeOffset = (list[i].timestamp - currentTimestamp + TimeSpan) / TimeSpan;
@@ -31,19 +32,20 @@ class GraphPainter extends CustomPainter {
         final startHeartRate =
             (list[i - 1].heartRate - MinHue) / (MaxHue - MinHue);
         final endHeartRate = (list[i].heartRate - MinHue) / (MaxHue - MinHue);
+        final diff =  (list[i - 1].heartRate - list[i - 2].heartRate) / (MaxHue - MinHue);
         if(startHeartRate >= -0.1 && startHeartRate <= 1.1 && endHeartRate >= -0.1 && endHeartRate <= 1.1) {
           path.moveTo(
               size.width * startTimeOffset, (size.height * startHeartRate));
           path.quadraticBezierTo(
-              size.width * startTimeOffset,
-              (size.height * startHeartRate),
+              size.width *( startTimeOffset + endTimeOffset)/2,
+              (startHeartRate +  diff.sign*pow( diff / 2,2))*size.height,
               size.width * endTimeOffset,
-              (size.height * endHeartRate));
-          lastHeartRate = list[i].heartRate;
+              size.height * endHeartRate);
+              lastHeartRate = list[i].heartRate;
         }
       }
     }
-    path.close();
+    //path.close();
     canvas.drawPath(path, paint);
 
     TextSpan textSpan = new TextSpan(
