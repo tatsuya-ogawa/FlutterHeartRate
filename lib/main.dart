@@ -38,7 +38,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-
 class MyHomePage extends StatelessWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
 
@@ -109,20 +108,28 @@ class MyHomePage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Heart Rate:',
-                  ),
-                  StreamBuilder(
-                    initialData: null,
-                    stream: heartRateBloc.heartRateStream,
-                    builder: (context, snapshot) {
-                      return Text(
-                        snapshot.data != null
-                            ? '${snapshot.data.heartRate.toStringAsFixed(10)}'
-                            : "None",
-                        style: Theme.of(context).textTheme.display1,
-                      );
-                    },
+                    '指をカメラに押し当ててね!',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Theme.of(context).accentColor,
+                    ),
                   )
+                  // Text(
+                  //   'Heart Rate:',
+                  // ),
+                  // StreamBuilder(
+                  //   initialData: null,
+                  //   stream: heartRateBloc.heartRateStream,
+                  //   builder: (context, snapshot) {
+                  //     return Text(
+                  //       snapshot.data != null
+                  //           ? '${snapshot.data.heartRate.toStringAsFixed(10)}'
+                  //           : "None",
+                  //       style: Theme.of(context).textTheme.display1,
+                  //     );
+                  //   },
+                  // )
                 ],
               ),
             )
