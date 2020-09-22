@@ -14,7 +14,7 @@ class MeasureData {
 }
 
 class CameraBlock {
-  static const  _maxListLength = 1024;
+  static const _maxListLength = 1024;
   List<MeasureData> dataList = new List<MeasureData>();
   final _cameraInitializeController = StreamController<bool>();
 
@@ -34,8 +34,8 @@ class CameraBlock {
 
   Future<CameraDescription> _getCamera(CameraLensDirection dir) async {
     return await availableCameras().then(
-          (List<CameraDescription> cameras) => cameras.firstWhere(
-            (CameraDescription camera) => camera.lensDirection == dir,
+      (List<CameraDescription> cameras) => cameras.firstWhere(
+        (CameraDescription camera) => camera.lensDirection == dir,
       ),
     );
   }
@@ -60,7 +60,7 @@ class CameraBlock {
           var now = DateTime.now().millisecondsSinceEpoch;
           var h = await compute(computeHeartRate, image);
           var data = MeasureData(now, h);
-          if(dataList.length >= _maxListLength){
+          if (dataList.length >= _maxListLength) {
             dataList.removeAt(0);
           }
           dataList.add(data);
@@ -91,8 +91,25 @@ class CameraBlock {
       }
       return h;
     } else {
-      //FIXME
-      return 0.0;
+      double h = 0.0;
+      final planeY = image.planes[0];
+      final planeU = image.planes[1];
+      final planeV = image.planes[2];
+
+      final int div = planeY.bytes.length;
+      for (var i = 0; i < planeY.bytes.length; i++) {
+        final Y = planeY.bytes[i];
+        final U = planeU.bytes[i];
+        final V = planeV.bytes[i];
+        final R = 1.0 * Y + 1.402 * V;
+        final G = 1.0 * Y - 0.344 * U - 0.714 * V;
+        final B = 1.0 * Y + 1.772 * U;
+
+        final H = atan2((0.5 * R - 0.419 * G - 0.081 * B),
+            (-0.169 * R - 0.331 * G + 0.5 * B));
+        h += H / div / pi;
+      }
+      return h;
     }
   }
 
